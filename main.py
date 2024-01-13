@@ -1,28 +1,48 @@
-#!/usr/bin/python
-
-# This is a simple echo bot using the decorator mechanism.
-# It echoes any incoming text messages.
+from contextlib import asynccontextmanager
+from http import HTTPStatus
+from telegram import Update
+from telegram.ext import Application, CommandHandler
+from telegram.ext._contexttypes import ContextTypes
+from fastapi import FastAPI, Request, Response
 import os
 
-from telebot.async_telebot import AsyncTeleBot
-bot = AsyncTeleBot(os.environ.get("token"))
+token = os.environ.get("BOT_TOKEN")
+ptb = (
+    Application.builder()
+    .updater(None)
+    .token(token)
+    .read_timeout(7)
+    .get_updates_read_timeout(43)
+    .build()
+)
 
+@asynccontextmanager
+async def lifespan(_):
+    await ptb.bot.setWebhook(url=os.environ.get("WEBHOOK_URL"),
+    secret_token=os.environ.get("SECRET_TOKEN")) # replace <your-webhook-url>
+    async with ptb:
+        await ptb.start()
+        yield
+        await ptb.stop()
 
+app = FastAPI(lifespan=lifespan)
 
-# Handle '/start' and '/help'
-@bot.message_handler(commands=['help', 'start'])
-async def send_welcome(message):
-    await bot.reply_to(message, """\
-Hi there, I am EchoBot.
-I am here to echo your kind words back to you. Just say anything nice and I'll say the exact same thing to you!\
-""")
+@app.post("/")
+async def process_update(request: Request):
+    # protection
+    headers = request.headers
+    secret_token = headers.get("X-Telegram-Bot-Api-Secret-Token")
+    if secret_token != os.environ.get("SECRET_TOKEN"):
+        return Response(status_code=HTTPStatus.UNAUTHORIZED)
+    #protection end
+    
+    req = await request.json()
+    update = Update.de_json(req, ptb.bot)
+    await ptb.process_update(update)
+    return Response(status_code=HTTPStatus.OK)
 
+async def start(update, _: ContextTypes.DEFAULT_TYPE):
+    """Send a message when the command /start is issued."""
+    await update.message.reply_text(f"Hello { update.message.chat.first_name }")
 
-# Handle all other messages with content_type 'text' (content_types defaults to ['text'])
-@bot.message_handler(func=lambda message: True)
-async def echo_message(message):
-    await bot.reply_to(message, message.text)
-
-
-import asyncio
-asyncio.run(bot.polling())
+ptb.add_handler(CommandHandler("start", start))
