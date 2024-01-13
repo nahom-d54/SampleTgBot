@@ -12,6 +12,16 @@ ptb = None
 
 @asynccontextmanager
 async def lifespan(_):
+    global ptb
+    ptb = (
+        Application.builder()
+        .updater(None)
+        .token(token)
+        .read_timeout(7)
+        .get_updates_read_timeout(43)
+        .build()
+    )
+    ptb.add_handler(CommandHandler("start", start))
     await ptb.bot.setWebhook(url=os.environ.get("WEBHOOK_URL"))
     #secret_token=os.environ.get("SECRET_TOKEN")) # replace <your-webhook-url>
     async with ptb:
