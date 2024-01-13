@@ -8,7 +8,7 @@ import os
 import uvicorn
 
 token = os.environ.get("BOT_TOKEN")
- ptb = (
+ptb = (
         Application.builder()
         .updater(None)
         .token(token)
@@ -50,11 +50,14 @@ async def process_update(request: Request):
     #if secret_token != os.environ.get("SECRET_TOKEN"):
         #return Response(status_code=HTTPStatus.UNAUTHORIZED)
     #protection end
-    
-    req = await request.json()
-    update = Update.de_json(req, ptb.bot)
-    await ptb.process_update(update)
-    return Response(status_code=HTTPStatus.OK)
+    try:
+        req = await request.json()
+        update = Update.de_json(req, ptb.bot)
+        await ptb.process_update(update)
+        return Response(status_code=HTTPStatus.OK)
+    except Exception as e:
+        print(e)
+     
 
 async def start(update, _: ContextTypes.DEFAULT_TYPE):
     """Send a message when the command /start is issued."""
