@@ -5,6 +5,7 @@ from telegram.ext import Application, CommandHandler
 from telegram.ext._contexttypes import ContextTypes
 from fastapi import FastAPI, Request, Response
 import os
+import uvicorn
 
 token = os.environ.get("BOT_TOKEN")
 ptb = (
