@@ -18,7 +18,7 @@ ptb = (
 
 @asynccontextmanager
 async def lifespan(_):
-    await ptb.bot.setWebhook(url=os.environ.get("WEBHOOK_URL"),
+    await ptb.bot.setWebhook(url=os.environ.get("WEBHOOK_URL"))
     #secret_token=os.environ.get("SECRET_TOKEN")) # replace <your-webhook-url>
     async with ptb:
         await ptb.start()
