@@ -8,14 +8,7 @@ import os
 import uvicorn
 
 token = os.environ.get("BOT_TOKEN")
-ptb = (
-    Application.builder()
-    .updater(None)
-    .token(token)
-    .read_timeout(7)
-    .get_updates_read_timeout(43)
-    .build()
-)
+ptb = None
 
 @asynccontextmanager
 async def lifespan(_):
@@ -27,7 +20,17 @@ async def lifespan(_):
         await ptb.stop()
 
 app = FastAPI(lifespan=lifespan)
-
+@app.on_event("startup")
+async def startup_event():
+    global ptb
+    ptb = (
+        Application.builder()
+        .updater(None)
+        .token(token)
+        .read_timeout(7)
+        .get_updates_read_timeout(43)
+        .build()
+    )
 @app.post("/")
 async def process_update(request: Request):
     # protection
