@@ -46,3 +46,6 @@ async def start(update, _: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Hello { update.message.chat.first_name }")
 
 ptb.add_handler(CommandHandler("start", start))
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
