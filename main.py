@@ -31,6 +31,7 @@ async def startup_event():
         .get_updates_read_timeout(43)
         .build()
     )
+    ptb.add_handler(CommandHandler("start", start))
 @app.post("/")
 async def process_update(request: Request):
     # protection
@@ -49,7 +50,6 @@ async def start(update, _: ContextTypes.DEFAULT_TYPE):
     """Send a message when the command /start is issued."""
     await update.message.reply_text(f"Hello { update.message.chat.first_name }")
 
-ptb.add_handler(CommandHandler("start", start))
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
