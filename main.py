@@ -8,12 +8,7 @@ import os
 import uvicorn
 
 token = os.environ.get("BOT_TOKEN")
-ptb = None
-
-@asynccontextmanager
-async def lifespan(_):
-    global ptb
-    ptb = (
+ ptb = (
         Application.builder()
         .updater(None)
         .token(token)
@@ -21,6 +16,11 @@ async def lifespan(_):
         .get_updates_read_timeout(43)
         .build()
     )
+
+@asynccontextmanager
+async def lifespan(_):
+    global ptb
+   
     ptb.add_handler(CommandHandler("start", start))
     await ptb.bot.setWebhook(url=os.environ.get("WEBHOOK_URL"))
     #secret_token=os.environ.get("SECRET_TOKEN")) # replace <your-webhook-url>
