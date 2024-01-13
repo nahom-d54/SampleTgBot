@@ -30,8 +30,8 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/")
 async def process_update(request: Request):
     # protection
-    headers = request.headers
-    secret_token = headers.get("X-Telegram-Bot-Api-Secret-Token")
+    #headers = request.headers
+    #secret_token = headers.get("X-Telegram-Bot-Api-Secret-Token")
     #if secret_token != os.environ.get("SECRET_TOKEN"):
         #return Response(status_code=HTTPStatus.UNAUTHORIZED)
     #protection end
